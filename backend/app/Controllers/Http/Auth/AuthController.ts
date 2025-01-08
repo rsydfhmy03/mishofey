@@ -1,6 +1,7 @@
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import AuthService from 'App/Services/Auth/AuthService'
 import AccountService from 'App/Services/User/AccountService'
+import CreateAccountValidator from 'App/Validators/User/CreateAccountValidator'
 import Base64 from 'base-64'
 
 export default class AuthController {
@@ -18,6 +19,29 @@ export default class AuthController {
     }
   }
 
+    /**
+   * Register a new user
+   */
+    public async register({ request, response }: HttpContextContract) {
+      try {
+        const userData = await request.validate(CreateAccountValidator);
+        console.log(userData, "PASS at Register")
+        await this.service.register(userData, request);
+        console.log(typeof userData, "Finalyy Pass register");
+        return response.api(
+          null,
+          "Registrasi berhasil! Silakan verifikasi email Anda.",
+          201
+        );
+      } catch (error) {
+        if (error.messages) {
+          return response.error("Validasi gagal", error.messages, 422);
+        }
+        console.log(error, "ERROR at Register Controller")
+        return response.error(error.message, null, error.status || 400);
+      }
+    }
+    
   public async logout ({ auth, response }: HttpContextContract) {
     try {
       await auth.use('api').revoke()

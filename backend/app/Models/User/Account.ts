@@ -1,7 +1,7 @@
 import { DateTime } from 'luxon'
-import { BaseModel, beforeFetch, beforeFind, BelongsTo, belongsTo, column } from '@ioc:Adonis/Lucid/Orm'
+import { BaseModel, beforeFetch, beforeFind, BelongsTo, belongsTo, column, HasMany, hasMany, beforeCreate } from '@ioc:Adonis/Lucid/Orm'
 import Role from './Role'
-
+import { v4 as uuid } from 'uuid'
 export default class Account extends BaseModel {
   public static softDelete = true
 
@@ -15,7 +15,7 @@ export default class Account extends BaseModel {
   public username: string
 
   @column({ serializeAs: null })
-  public pwd: string
+  public password: string
 
   @column()
   public email: string
@@ -31,6 +31,23 @@ export default class Account extends BaseModel {
 
   @column()
   public is_ban: boolean
+
+  @column()
+  public is_verified: boolean
+
+  @column()
+  public no_handphone: string
+
+  @column()
+  public gender: string
+
+  @column({
+    serialize: (value: DateTime) => value ? value.toFormat('yyyy-MM-dd') : null,
+  })
+  public birth_date: DateTime
+
+  @column()
+  public document: string
 
   @column.dateTime({ autoCreate: true })
   public created_at: DateTime
@@ -55,8 +72,13 @@ export default class Account extends BaseModel {
     query.whereNull("deleted_at")
   }
 
+  @beforeCreate()
+  public static generateUuid(account: Account) {
+    account.id = uuid()
+  }
   @belongsTo(() => Role, {
     foreignKey: 'urole_id'
   })
   public role: BelongsTo<typeof Role>
+
 }

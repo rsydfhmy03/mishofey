@@ -1,5 +1,7 @@
 import { DateTime } from 'luxon'
-import { BaseModel, column } from '@ioc:Adonis/Lucid/Orm'
+import { BaseModel, beforeCreate, column, HasOne, hasOne } from '@ioc:Adonis/Lucid/Orm'
+import Account from './Account'
+import { v4 as uuid } from 'uuid'
 
 export default class Role extends BaseModel {
   @column({ isPrimary: true })
@@ -20,4 +22,12 @@ export default class Role extends BaseModel {
   static get table() {
     return "user.role"
   }
+
+  @beforeCreate()
+  public static generateUuid(role: Role) {
+    role.id = uuid()
+  }
+
+  @hasOne(() => Account)
+  public account: HasOne<typeof Account>
 }
